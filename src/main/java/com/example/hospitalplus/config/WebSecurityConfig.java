@@ -39,24 +39,16 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf().disable()
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/index", "/registration", "/donation", "/css/**", "/js/**", "/img/**").permitAll()
-                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
-                        .requestMatchers("/doctor/**").hasAuthority("DOCTOR")
-                        .anyRequest().authenticated()
-                )
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .successHandler(successHandler())
-                        .permitAll()
-                )
-                .logout(logout -> logout.permitAll())
-                .exceptionHandling(exception -> exception.accessDeniedPage("/403"));
+        http.csrf().disable()
+                .authorizeRequests()
+                .anyRequest().permitAll() // Allow all requests without authentication
+                .and()
+                .formLogin().disable()
+                .httpBasic().disable();
 
         return http.build();
     }
+
 
     @Bean
     public LoginSuccessHandler successHandler() {

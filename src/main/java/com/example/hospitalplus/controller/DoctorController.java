@@ -1,26 +1,24 @@
 package com.example.hospitalplus.controller;
 
 import com.example.hospitalplus.entity.*;
-import com.example.hospitalplus.repository.*;
 import com.example.hospitalplus.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
-@Controller
-@RequestMapping("/doctor")
+@RestController
+@RequestMapping("/api/doctor")
 public class DoctorController {
 
     @Autowired
     private DoctorService doctorService;
 
+    @Autowired
+    private PatientService patientService;
 
     @Autowired
     private AppService appService;
-
-    @Autowired
-    private PatientService patientService;
 
     @Autowired
     private DonorService donorService;
@@ -28,137 +26,26 @@ public class DoctorController {
     @Autowired
     private LabService labService;
 
-
-
+    // Dashboard Endpoint
     @GetMapping
-    public String dashboardView() {
-        return "doctor/doctor";
+    public ResponseEntity<String> dashboardView() {
+        return ResponseEntity.ok("Welcome to Doctor Dashboard");
     }
 
-    @GetMapping("/patient")
-    String doctorPatientView(Model model) {
-        model.addAttribute("patient", new Patient());
-        model.addAttribute("patients", patientService.getAllPatients());
-        model.addAttribute("doctors", doctorService.getAllDoctors());
-        model.addAttribute("appointments", appService.getAllAppointments());
-        return "doctor/patientDoctor/patientDoctor";
+    // Patients Endpoints
+    @GetMapping("/patients")
+    public ResponseEntity<List<Patient>> getAllPatients() {
+        return ResponseEntity.ok(patientService.getAllPatients());
     }
 
-    @GetMapping("/appointment")
-    public String showAppointment(Model model) {
-        model.addAttribute("appointment", new Appointment());
-        model.addAttribute("appointments", appService.getAllAppointments());
-        return "doctor/appointmentDoctor/appointmentDoctor";
+    @PostMapping("/patients")
+    public ResponseEntity<Patient> createPatient(@RequestBody Patient patient) {
+        return ResponseEntity.ok(patientService.savePatient(patient));
     }
 
-    @GetMapping("/donor")
-    public String showDonor(Model model) {
-        model.addAttribute("donor", new Donor());
-        model.addAttribute("donors", donorService.getAllDonors());
-        model.addAttribute("laboratories", labService.getAllLabs());
-        return "doctor/donorDoctor/donorDoctor";
-    }
-
-    @GetMapping("/laboratory")
-    public String showLab(Model model) {
-        model.addAttribute("laboratory", new Laboratory());
-        model.addAttribute("laboratories", labService.getAllLabs());
-        return "doctor/laboratoryDoctor/laboratoryDoctor";
-    }
-
-    @GetMapping("/patient/edit/{id}")
-    String doctorPatientEdit(@PathVariable Integer id, Model model) {
-        model.addAttribute("patient", patientService.getPatientById(id));
-        model.addAttribute("patients", patientService.getAllPatients());
-        model.addAttribute("doctors", doctorService.getAllDoctors());
-        model.addAttribute("appointments", appService.getAllAppointments());
-        return "doctor/patientDoctor/editPatient";
-    }
-
-    @GetMapping("/appointment/edit/{id}")
-    public String editAppointment(@PathVariable Integer id, Model model) {
-        model.addAttribute("appointment", appService.getAppById(id));
-        return "doctor/appointmentDoctor/editAppointment";
-    }
-
-    @GetMapping("/donor/edit/{id}")
-    public String editDonor(@PathVariable Integer id, Model model) {
-        model.addAttribute("donor", donorService.getDonorById(id));
-        model.addAttribute("donors", donorService.getAllDonors());
-        model.addAttribute("laboratories", labService.getAllLabs());
-        return "doctor/donorDoctor/editDonor";
-    }
-    @GetMapping("/laboratory/edit/{id}")
-    public String editLab(@PathVariable Integer id, Model model) {
-        model.addAttribute("laboratory", labService.getLabById(id));
-        model.addAttribute("laboratories", labService.getAllLabs());
-        return "doctor/laboratoryDoctor/editLab";
-    }
-
-    @GetMapping("/appointment/{id}")
-    public String deleteApp(@PathVariable Integer id){
-        appService.deleteAppById(id);
-        return "redirect:/doctor/appointment";
-    }
-
-    @GetMapping("/donor/{id}")
-    public String deleteDonor(@PathVariable Integer id){
-        donorService.deleteDonorById(id);
-        return "redirect:/doctor/donor";
-    }
-
-    @GetMapping("/patient/{id}")
-    public String deletePatient(@PathVariable Integer id){
-        patientService.deletePatientById(id);
-        return "redirect:/doctor/patient";
-    }
-    @GetMapping("/laboratory/{id}")
-    public String deleteLab(@PathVariable Integer id){
-        labService.deleteLabById(id);
-        return "redirect:/doctor/laboratory";
-    }
-
-
-    @PostMapping("/patient")
-    public String createPatient(@ModelAttribute Patient patient) {
-        patientService.savePatient(patient);
-        return "redirect:/doctor/patient";
-    }
-
-    @PostMapping("/appointment")
-    public String createAppointment(@ModelAttribute Appointment appointment) {
-        appService.saveApp(appointment);
-        return "redirect:/doctor/appointment";
-    }
-
-    @PostMapping("/donor")
-    public String createDonor(@ModelAttribute Donor donor) {
-        donorService.saveDonor(donor);
-        return "redirect:/doctor/donor";
-    }
-
-    @PostMapping("/laboratory")
-    public String createLab(@ModelAttribute Laboratory laboratory) {
-        labService.saveLab(laboratory);
-
-        return "redirect:/doctor/laboratory";
-    }
-
-    @PostMapping("/appointment/edit/{id}")
-    public String updateApp(@PathVariable Integer id, @ModelAttribute("appointment") Appointment appointment, Model model){
-        Appointment existingApp = appService.getAppById(id);
-        existingApp.setId(appointment.getId());
-        existingApp.setFullName(appointment.getFullName());
-        existingApp.setEmail(appointment.getEmail());
-        existingApp.setMessage(appointment.getMessage());
-        appService.updateApp(existingApp);
-        return  "redirect:/doctor/appointment";
-    }
-
-    @PutMapping("/patient/edit/{id}")
-    public String updatePatient(@PathVariable Integer id, @ModelAttribute("patient") Patient patient, Model model){
+    @PutMapping("/patients/{id}")
+    public ResponseEntity<Patient> updatePatient(@PathVariable Integer id, @RequestBody Patient patient) {
         Patient existingPatient = patientService.getPatientById(id);
-        existingPatient.setId(patient.getId());
         existingPatient.setFirstName(patient.getFirstName());
         existingPatient.setLastName(patient.getLastName());
         existingPatient.setEmail(patient.getEmail());
@@ -167,29 +54,90 @@ public class DoctorController {
         existingPatient.setAge(patient.getAge());
         existingPatient.setAppointment(patient.getAppointment());
         existingPatient.setDoctor(patient.getDoctor());
-        patientService.updatePatient(existingPatient);
-        return  "redirect:/doctor/patient";
+        return ResponseEntity.ok(patientService.updatePatient(existingPatient));
     }
 
-    @PostMapping("/laboratory/edit/{id}")
-    public String updateLab(@PathVariable Integer id, @ModelAttribute("laboratory") Laboratory laboratory, Model model){
-        Laboratory existingLab = labService.getLabById(id);
-        existingLab.setId(laboratory.getId());
-        existingLab.setLabName(laboratory.getLabName());
-        existingLab.setAddress(laboratory.getAddress());
-        existingLab.setDonor(laboratory.getDonor());
-        labService.updateLab(existingLab);
-        return  "redirect:/doctor/laboratory";
+    @DeleteMapping("/patients/{id}")
+    public ResponseEntity<Void> deletePatient(@PathVariable Integer id) {
+        patientService.deletePatientById(id);
+        return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/donor/edit/{id}")
-    public String updateDonor(@PathVariable Integer id, @ModelAttribute("laboratory") Donor donor, Model model){
+    // Appointments Endpoints
+    @GetMapping("/appointments")
+    public ResponseEntity<List<Appointment>> getAllAppointments() {
+        return ResponseEntity.ok(appService.getAllAppointments());
+    }
+
+    @PostMapping("/appointments")
+    public ResponseEntity<Appointment> createAppointment(@RequestBody Appointment appointment) {
+        return ResponseEntity.ok(appService.saveApp(appointment));
+    }
+
+    @PutMapping("/appointments/{id}")
+    public ResponseEntity<Appointment> updateAppointment(@PathVariable Integer id, @RequestBody Appointment appointment) {
+        Appointment existingApp = appService.getAppById(id);
+        existingApp.setFullName(appointment.getFullName());
+        existingApp.setEmail(appointment.getEmail());
+        existingApp.setMessage(appointment.getMessage());
+        return ResponseEntity.ok(appService.updateApp(existingApp));
+    }
+
+    @DeleteMapping("/appointments/{id}")
+    public ResponseEntity<Void> deleteAppointment(@PathVariable Integer id) {
+        appService.deleteAppById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Donors Endpoints
+    @GetMapping("/donors")
+    public ResponseEntity<List<Donor>> getAllDonors() {
+        return ResponseEntity.ok(donorService.getAllDonors());
+    }
+
+    @PostMapping("/donors")
+    public ResponseEntity<Donor> createDonor(@RequestBody Donor donor) {
+        return ResponseEntity.ok(donorService.saveDonor(donor));
+    }
+
+    @PutMapping("/donors/{id}")
+    public ResponseEntity<Donor> updateDonor(@PathVariable Integer id, @RequestBody Donor donor) {
         Donor existingDonor = donorService.getDonorById(id);
-        existingDonor.setId(donor.getId());
         existingDonor.setFullName(donor.getFullName());
         existingDonor.setEmail(donor.getEmail());
         existingDonor.setMessage(donor.getMessage());
-        donorService.updateDonor(existingDonor);
-        return  "redirect:/doctor/donor";
+        return ResponseEntity.ok(donorService.updateDonor(existingDonor));
+    }
+
+    @DeleteMapping("/donors/{id}")
+    public ResponseEntity<Void> deleteDonor(@PathVariable Integer id) {
+        donorService.deleteDonorById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Laboratories Endpoints
+    @GetMapping("/laboratories")
+    public ResponseEntity<List<Laboratory>> getAllLaboratories() {
+        return ResponseEntity.ok(labService.getAllLabs());
+    }
+
+    @PostMapping("/laboratories")
+    public ResponseEntity<Laboratory> createLaboratory(@RequestBody Laboratory laboratory) {
+        return ResponseEntity.ok(labService.saveLab(laboratory));
+    }
+
+    @PutMapping("/laboratories/{id}")
+    public ResponseEntity<Laboratory> updateLaboratory(@PathVariable Integer id, @RequestBody Laboratory laboratory) {
+        Laboratory existingLab = labService.getLabById(id);
+        existingLab.setLabName(laboratory.getLabName());
+        existingLab.setAddress(laboratory.getAddress());
+        existingLab.setDonor(laboratory.getDonor());
+        return ResponseEntity.ok(labService.updateLab(existingLab));
+    }
+
+    @DeleteMapping("/laboratories/{id}")
+    public ResponseEntity<Void> deleteLaboratory(@PathVariable Integer id) {
+        labService.deleteLabById(id);
+        return ResponseEntity.noContent().build();
     }
 }
