@@ -37,3 +37,20 @@ INSERT INTO doctors (id, first_name, last_name, specialty, address, mobile_numbe
 INSERT INTO doctors (id, first_name, last_name, specialty, address, mobile_number) VALUES (8, 'Oliver', 'Green', 'Oncologist', '56 Fall St', '077777708');
 INSERT INTO doctors (id, first_name, last_name, specialty, address, mobile_number) VALUES (9, 'Sophia', 'Lee', 'Ophthalmologist', '78 Winter St', '077777709');
 INSERT INTO doctors (id, first_name, last_name, specialty, address, mobile_number) VALUES (10, 'Benjamin', 'Miller', 'Orthopedic', '90 Meadow Lane', '077777710');
+
+
+INSERT INTO appointment (id, date, email, full_name, message)
+VALUES
+    (1, '2024-12-01 09:00:00', 'alice.johnson@example.com', 'Alice Johnson', 'Regular checkup'),
+    (2, '2024-12-02 10:30:00', 'bob.smith@example.com', 'Bob Smith', 'Follow-up appointment'),
+    (3, '2024-12-03 11:45:00', 'john.doe@example.com', 'John Doe', 'Initial consultation'),
+    (4, '2024-12-04 13:15:00', 'jane.doe@example.com', 'Jane Doe', 'Routine examination'),
+    (5, '2024-12-05 14:00:00', 'chris.brown@example.com', 'Chris Brown', 'Specialist visit');
+
+INSERT INTO patient (id, age, name, email, lastname, phone, sex, app_id, doctor_id)
+VALUES
+    (1, 28, 'Alice', 'alice.johnson@example.com', 'Johnson', '1234567890', 'Female', 1, 3),
+    (2, 35, 'Bob', 'bob.smith@example.com', 'Smith', '0987654321', 'Male', 2, 3),
+    (3, 42, 'John', 'john.doe@example.com', 'Doe', '9876543210', 'Male', 3, 3),
+    (4, 32, 'Jane', 'jane.doe@example.com', 'Doe', '5678901234', 'Female', 4, 4),
+    (5, 50, 'Chris', 'chris.brown@example.com', 'Brown', '3456789012', 'Male', 5, 4);
